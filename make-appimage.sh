@@ -14,11 +14,21 @@ export DEPLOY_PYTHON=1
 
 # Deploy dependencies
 quick-sharun \
-  /usr/bin/faugus*           \
-  /usr/share/faugus-launcher \
-  /usr/lib/libgtk-3.so*
-  
-# Additional changes can be done in between here
+	/usr/bin/faugus*           \
+	/usr/share/faugus-launcher \
+	/usr/lib/libgtk-3.so*
+echo 'unset VK_DRIVER_FILES' >> ./AppDir/.env
+
+# This is needed since the application downloads binaries that link to glibc
+# on the host regardlesss of the host glibc being compatible or even present at all
+#
+# This way the execve call will use our bundled sharun -> dynamic linker -> glibc
+#
+cc -shared -fPIC -O2 -o ./AppDir/lib/execve-sharun-hack.so execve-sharun-hack.c -ldl
+echo 'execve-sharun-hack.so' >> ./AppDir/.preload
+
+# We need to include $HOME/.local/share/Steam as faugus-launcher hardcodes that location
+echo 'export ANYLINUX_EXECVE_WRAP_PATHS="$DATADIR/Steam:$HOME/.local/share/Steam"' >> ./AppDir/bin/execve-wrap-path.hook
 
 # Turn AppDir into AppImage
 quick-sharun --make-appimage

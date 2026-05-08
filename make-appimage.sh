@@ -17,6 +17,7 @@ quick-sharun \
 	/usr/bin/faugus*           \
 	/usr/share/faugus-launcher \
 	/usr/lib/libgtk-3.so*
+sed -i -e 's|/usr/bin|"$APPDIR"/bin|g' ./AppDir/bin/faugus-launcher
 echo 'unset VK_DRIVER_FILES' >> ./AppDir/.env
 
 # This is needed since the application downloads binaries that link to glibc
